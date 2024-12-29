@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Reminder System</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: rgb(70, 223, 234);
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    /* Form Styles */
+    input, select, button {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    select {
+      background-color: #f4f4f9;
+    }
+    input:focus, select:focus, button:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    /* Task List Styles */
+    .task-list {
+      margin-top: 20px;
+    }
+    .task {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 6px;
+      background-color: #fafafa;
+    }
+    .task p {
+      margin: 5px 0;
+    }
+    .task strong {
+      color: #333;
+    }
+
+    /* Button Styles */
+    #sortTasks, #filterTasks, #sendReminders {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    #sortTasks:hover, #filterTasks:hover, #sendReminders:hover {
+      background-color: #1976D2;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      input, select, button {
+        padding: 8px;
+      }
+      .task {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task Reminder System</h1>
+    <form id="taskForm">
+      <input type="text" id="taskTitle" placeholder="Task Title" required />
+      <input type="number" id="taskDueTime" placeholder="Due Time (minutes from now)" required />
+      <select id="taskPriority" required>
+        <option value="" disabled selected>Select Priority</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button type="submit">Add Task</button>
+    </form>
+    <button id="sortTasks">Sort Tasks by Priority</button>
+    <button id="filterTasks">Show Tasks Due in 10 Minutes</button>
+    <button id="sendReminders">Simulate Reminders</button>
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <script>
+    const tasks = [
+      {
+        title: "Write project proposal",
+        dueTime: 60,
+        priority: "High",
+      },
+      {
+        title: "Finish project report",
+        dueTime: 30,
+        priority: "Medium",
+      },
+      {
+        title: "Meet with team",
+        dueTime: 90,
+        priority: "Low",
+      },
+      {
+        title: "Code review",
+        dueTime: 180,
+        priority: "Low",
+      },
+    ];
+
+    // Function to add a new task
+    function addTask(taskList, title, dueTime, priority) {
+      const newTask = { title, dueTime, priority };
+      taskList.push(newTask);
+      console.log(`Task "${title}" added successfully.`);
+      displayAllTasks(taskList); // Update displayed tasks
+    }
+
+    // Function to sort tasks by priority
+    function sortTasksByPriority(taskList) {
+      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      taskList.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      console.log("Tasks sorted by priority.");
+      displayAllTasks(taskList); // Update displayed tasks
+    }
+
+    // Function to display tasks due within a specific timeframe
+    function displayTasksDueIn(taskList, timeframe) {
+      const filteredTasks = taskList.filter((task) => task.dueTime <= timeframe);
+      console.log(`Tasks due within the next ${timeframe} minutes:`);
+      if (filteredTasks.length === 0) {
+        console.log("No tasks due within this timeframe.");
+      } else {
+        filteredTasks.forEach((task) =>
+          console.log(`- ${task.title} (Due in ${task.dueTime} minutes, Priority: ${task.priority})`)
+        );
+      }
+      displayAllTasks(filteredTasks); // Display filtered tasks
+    }
+
+    // Function to send reminders for tasks
+    function sendReminders(taskList) {
+      taskList.forEach((task) => {
+        setTimeout(() => {
+          console.log(
+            `Reminder: Task "${task.title}" is due in ${task.dueTime} minutes (Priority: ${task.priority}).`
+          );
+        }, task.dueTime * 60000); // Convert dueTime to milliseconds
+      });
+      console.log("Reminders set for all tasks.");
+    }
+
+    // Function to display all tasks in the DOM
+    function displayAllTasks(taskList) {
+      const taskListElement = document.getElementById("taskList");
+      taskListElement.innerHTML = ""; // Clear the current list
+
+      if (taskList.length === 0) {
+        taskListElement.innerHTML = "<p>No tasks available.</p>";
+        return;
+      }
+
+      taskList.forEach((task) => {
+        const taskElement = document.createElement("div");
+        taskElement.classList.add("task");
+        taskElement.innerHTML = `
+          <p><strong>Title:</strong> ${task.title}</p>
+          <p><strong>Due in:</strong> ${task.dueTime} minutes</p>
+          <p><strong>Priority:</strong> ${task.priority}</p>
+        `;
+        taskListElement.appendChild(taskElement);
+      });
+    }
+
+    // Attach event listeners to the buttons
+    document.getElementById("taskForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = document.getElementById("taskTitle").value;
+      const dueTime = parseInt(document.getElementById("taskDueTime").value, 10);
+      const priority = document.getElementById("taskPriority").value;
+
+      if (title && !isNaN(dueTime) && priority) {
+        addTask(tasks, title, dueTime, priority);
+        document.getElementById("taskForm").reset(); // Clear form fields
+      } else {
+        alert("Please fill out all fields.");
+      }
+    });
+
+    document.getElementById("sortTasks").addEventListener("click", () => {
+      sortTasksByPriority(tasks);
+    });
+
+    document.getElementById("filterTasks").addEventListener("click", () => {
+      displayTasksDueIn(tasks, 10);
+    });
+
+    document.getElementById("sendReminders").addEventListener("click", () => {
+      sendReminders(tasks);
+    });
+
+    // Display initial tasks
+    displayAllTasks(tasks);
+  </script>
+</body>
+</html>
